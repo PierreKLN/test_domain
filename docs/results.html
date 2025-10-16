@@ -1,3 +1,10 @@
+```
+
+---
+
+## 2) `results.html`
+
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,148 +12,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Résultats — Diagnostic Industrie</title>
   <style>
-    /* ... (tes styles existants) ... */
-
-    /* ====== Apparition à l’arrivée ====== */
-    body.is-hidden *{ visibility:hidden; } /* évite le flash */
-    body.ready .reveal{
-      animation: result-reveal 520ms cubic-bezier(.2,.7,.2,1) both;
-    }
-    @keyframes result-reveal{
-      from{ opacity:0; filter:blur(8px); transform: translateY(12px) scale(.992); }
-      60%{ opacity:1; filter:blur(0); transform: translateY(0) scale(1); }
-      to  { opacity:1; }
-    }
-
-    /* petit “contre-rideau” */
-    #arrival-wipe{
-      position:fixed; inset:0; pointer-events:none; opacity:1;
-      background:
-        radial-gradient(1200px 600px at 85% 110%, rgba(255,255,255,.08), transparent 60%) ,
-        linear-gradient(315deg, rgba(10,132,255,.65), rgba(0,0,0,.0) 55%) ,
-        linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.88));
-      transform: translateX(-100%);
-      z-index:9999;
-    }
-    .arrival-animate{
-      animation: arrival-wipe 520ms cubic-bezier(.2,.7,.2,1) forwards;
-    }
-    @keyframes arrival-wipe{
-      0%   { transform: translateX(-100%); }
-      40%  { transform: translateX(0%); }
-      100% { transform: translateX(-110%); opacity:0; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      body.ready .reveal{ animation:none !important; }
-      #arrival-wipe{ display:none !important; }
-    }
+    :root{ --bg-dark:#000; --fg-dark:#f5f5f7; --muted-dark:#a1a1a6; --line-dark:#1c1c1e; --pill-dark:rgba(255,255,255,.08); --glass-border-dark:rgba(255,255,255,.12); --accent:#0a84ff; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg-dark);color:var(--fg-dark);transition:opacity .35s ease}
+    body.fade-in{opacity:0}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .badge{display:inline-flex;gap:10px;align-items:center;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--glass-border-dark)}
+    .lvl{font-weight:700;color:#2b9d42}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{cursor:pointer;border-radius:999px;padding:10px 14px;border:1px solid var(--glass-border-dark);background:var(--pill-dark);color:#fff}
+    .btn:hover{filter:brightness(1.05)}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{padding:10px;border-bottom:1px solid var(--line-dark);text-align:left}
+    th{font-weight:600}
+    .small{color:var(--muted-dark);font-size:14px}
   </style>
 </head>
-<body class="is-hidden">
-  <!-- contre-rideau pour l’arrivée -->
-  <div id="arrival-wipe" aria-hidden="true"></div>
-
-  <div class="topbar reveal">
-    <div class="brand"><div class="logo" aria-hidden="true"></div> Résultats du diagnostic</div>
-  </div>
-
-  <section class="section reveal">
-    <div class="container">
-      <div class="card reveal">
-        <div class="hdr">
-          <div class="score-badge">
-            <span>Score global</span> <strong id="score">—</strong>
-          </div>
-          <div>📊 <span id="level" class="lvl">N/A</span></div>
-        </div>
-
-        <div class="kv">
-          <span class="pill">🏢 <strong id="companyLabel">—</strong></span>
-          <span class="pill">🏭 <span id="sectorLabel">—</span></span>
-          <span class="pill">✉️ <span id="emailLabel">—</span></span>
-          <span class="pill">🕒 <span id="dateLabel">—</span></span>
-        </div>
-
-        <div class="bars" id="catbars"></div>
-
-        <div style="margin-top:16px">
-          <h3 style="margin:0 0 8px">Recommandations prioritaires</h3>
-          <ol id="reco" class="list"></ol>
-          <small class="muted">Ces actions sont générées en fonction de vos réponses.</small>
-        </div>
-
-        <div class="section" style="padding:16px 0 0">
-          <div class="actions">
-            <a class="cta" href="index.html">← Refaire le diagnostic</a>
-            <button class="ghost" id="export">Exporter le résultat (JSON)</button>
-            <button class="ghost" id="print">Imprimer / PDF</button>
-            <button class="ghost" id="clear">Effacer les données</button>
-          </div>
-        </div>
-
+<body class="fade-in">
+  <div class="container">
+    <div class="top">
+      <div>
+        <h1 style="margin:0 0 6px">Résultats du diagnostic</h1>
+        <div id="meta" class="small"></div>
+      </div>
+      <div class="badge">
+        <span>Score global</span>
+        <strong id="score" style="font-size:24px;letter-spacing:-.02em">0%</strong>
       </div>
     </div>
-  </section>
+
+    <div style="margin-top:8px">📊 <span id="level" class="lvl">N/A</span></div>
+
+    <h3 style="margin:18px 0 8px">Détail par catégorie</h3>
+    <table id="cats">
+      <thead><tr><th>Catégorie</th><th>Score</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h3 style="margin:22px 0 8px">Réponses</h3>
+    <table id="answers">
+      <thead><tr><th>#</th><th>Question</th><th>Note (0-3)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h3 style="margin:22px 0 8px">Recommandations prioritaires</h3>
+    <ol id="reco" style="margin:0 0 16px 18px;line-height:1.6"></ol>
+
+    <div class="actions" style="margin-top:12px">
+      <button class="btn" id="back">◀︎ Retour</button>
+      <button class="btn" id="downloadCsv">Télécharger CSV</button>
+      <button class="btn" id="emailBtn">Envoyer par email</button>
+    </div>
+
+    <p class="small" style="margin-top:10px">Astuce : le CSV peut être joint à l'email si nécessaire.</p>
+  </div>
 
   <script>
-    function load(){
-      const raw=sessionStorage.getItem('diagnostic_results');
-      if(!raw){
-        document.getElementById('score').textContent='—';
-        document.getElementById('level').textContent='N/A';
-        document.getElementById('catbars').innerHTML='<div class="muted">Aucune donnée trouvée. <a href="index.html">Lancer le diagnostic</a>.</div>';
-        return null;
-      }
-      try{ return JSON.parse(raw); }catch(_){ return null; }
-    }
-    function render(data){
-      if(!data) return;
-      const {meta, computed, ts} = data;
-      document.getElementById('score').textContent = (computed.global||0) + '%';
-      document.getElementById('level').textContent = computed.level || 'N/A';
-      document.getElementById('companyLabel').textContent = meta.company || '—';
-      document.getElementById('sectorLabel').textContent  = meta.sector || '—';
-      document.getElementById('emailLabel').textContent   = meta.email || '—';
-      document.getElementById('dateLabel').textContent    = new Date(ts).toLocaleString();
+    // Animation d'arrivée
+    window.addEventListener('pageshow', ()=>{ document.body.style.opacity='1'; });
 
-      const wrap=document.getElementById('catbars'); wrap.innerHTML='';
-      (computed.catScores||[]).forEach(c=>{
-        const row=document.createElement('div'); row.className='barrow reveal';
-        row.style.animationDelay = (80 * (wrap.children.length+1)) + 'ms';
-        row.innerHTML=`<div>${c.label}</div><div class='barx'><div class='fill' style='width:${c.pct}%'></div></div>`;
-        wrap.appendChild(row);
-      });
+    // Récupération
+    const raw = sessionStorage.getItem('diagPayload');
+    if(!raw){ alert("Aucune donnée trouvée. Retour à l'accueil."); window.location.replace('index.html'); }
+    const data = raw ? JSON.parse(raw) : null;
 
-      const list=document.getElementById('reco'); list.innerHTML='';
-      (computed.reco||[]).forEach((r,i)=>{ const li=document.createElement('li'); li.className='reveal'; li.style.animationDelay=(120*i)+'ms'; li.textContent=r; list.appendChild(li); });
+    // Meta
+    const metaEl = document.getElementById('meta');
+    if(data){
+      const {company, sector, email} = data.meta || {};
+      metaEl.textContent = `${company||'—'}${sector? ' · '+sector:''} ${email? ' · '+email:''}`;
     }
 
-    function exportJSON(){
-      const raw=sessionStorage.getItem('diagnostic_results');
-      if(!raw){ alert('Aucune donnée à exporter.'); return; }
-      const blob=new Blob([JSON.stringify(JSON.parse(raw),null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a');
-      a.href=url; a.download='diagnostic_maturite.json'; a.click(); URL.revokeObjectURL(url);
-    }
-    function clearData(){
-      sessionStorage.removeItem('diagnostic_results');
-      location.reload();
-    }
+    // Scores
+    document.getElementById('score').textContent = (data?.global??0)+"%";
+    document.getElementById('level').textContent = data?.level || 'N/A';
 
-    document.getElementById('export').addEventListener('click', exportJSON);
-    document.getElementById('print').addEventListener('click', ()=>window.print());
-    document.getElementById('clear').addEventListener('click', clearData);
+    // Catégories
+    const catTbody = document.querySelector('#cats tbody');
+    (data?.catScores||[]).forEach(c=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${c.label}</td><td>${c.pct}%</td>`; catTbody.appendChild(tr);
+    });
 
-    // Démarrage : on charge, on rend, puis on joue l’anim d’arrivée
-    window.addEventListener('DOMContentLoaded', ()=>{
-      render(load());
-      // montre la page et lance le "contre-rideau"
-      document.body.classList.remove('is-hidden');
-      document.body.classList.add('ready');
-      const wipe = document.getElementById('arrival-wipe');
-      // Lancer une fois que le DOM est prêt pour éviter un flash
-      requestAnimationFrame(()=>{ wipe.classList.add('arrival-animate'); });
+    // Réponses
+    const ansTbody = document.querySelector('#answers tbody');
+    (data?.questions||[]).forEach((q, i)=>{
+      const v = data.answers?.[i];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i+1}</td><td>${q.text}</td><td>${v ?? '—'}</td>`; ansTbody.appendChild(tr);
+    });
+
+    // Recos
+    const recoEl = document.getElementById('reco');
+    (data?.reco||[]).forEach(r=>{ const li=document.createElement('li'); li.textContent=r; recoEl.appendChild(li); });
+
+    // Retour (avec fade)
+    document.getElementById('back').addEventListener('click', ()=>{ document.body.style.opacity='0'; setTimeout(()=>{ window.location.href='index.html'; }, 220); });
+
+    // CSV
+    function toCsv(){
+      const lines = [];
+      lines.push(['Entreprise','Secteur','Email','Score global','Niveau'].join(','));
+      lines.push([data.meta?.company||'', data.meta?.sector||'', data.meta?.email||'', data.global, data.level].map(x=>`"${String(x).replaceAll('"','""')}"`).join(','));
+      lines.push('');
+      lines.push(['Catégorie','Score %'].join(','));
+      (data.catScores||[]).forEach(c=>lines.push([c.label, c.pct].join(',')));
+      lines.push('');
+      lines.push(['#','Question','Note'].join(','));
+      (data.questions||[]).forEach((q,i)=>{ const v=data.answers?.[i]; lines.push([i+1, q.text, v??''].map(x=>`"${String(x).replaceAll('"','""')}"`).join(',')); });
+      lines.push('');
+      lines.push(['Recommandations'].join(','));
+      (data.reco||[]).forEach(r=>lines.push([r].map(x=>`"${String(x).replaceAll('"','""')}"`).join(',')));
+      return lines.join('\n');
+    }
+    document.getElementById('downloadCsv').addEventListener('click', ()=>{ const blob = new Blob([toCsv()], {type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='diagnostic_resultats.csv'; a.click(); URL.revokeObjectURL(url); });
+
+    // Email via mailto (vers l'adresse saisie au début)
+    document.getElementById('emailBtn').addEventListener('click', ()=>{
+      const to = (data.meta?.email||'').trim();
+      if(!to){ alert("Aucune adresse email saisie sur la page d'accueil."); return; }
+      const subject = `Résultats du diagnostic — ${data.meta?.company||'Entreprise'} (${data.global}% · ${data.level})`;
+      const lines = [];
+      lines.push(`Entreprise: ${data.meta?.company||'—'}`);
+      lines.push(`Secteur: ${data.meta?.sector||'—'}`);
+      lines.push(`Email: ${data.meta?.email||'—'}`);
+      lines.push('');
+      lines.push(`Score global: ${data.global}%`);
+      lines.push(`Niveau: ${data.level}`);
+      lines.push('');
+      lines.push('Catégories:');
+      (data.catScores||[]).forEach(c=>lines.push(`- ${c.label}: ${c.pct}%`));
+      lines.push('');
+      lines.push('Réponses:');
+      (data.questions||[]).forEach((q,i)=>{ const v=data.answers?.[i]; lines.push(`- Q${i+1}: ${q.text} → ${v??'—'}`); });
+      lines.push('');
+      lines.push('Recommandations prioritaires:');
+      (data.reco||[]).forEach((r,i)=>lines.push(`${i+1}. ${r}`));
+      const body = encodeURIComponent(lines.join('\n'));
+      window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${body}`;
     });
   </script>
 </body>
