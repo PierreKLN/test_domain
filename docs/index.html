@@ -4,8 +4,78 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Diagnostic de maturité — Industrie</title>
+  <meta name="description" content="Questionnaire rapide pour évaluer la maturité numérique et IA d'une entreprise industrielle (N1 à N4) et obtenir des recommandations concrètes." />
   <style>
-    /* ... (tes styles existants inchangés) ... */
+    :root{
+      --bg-dark:#000; --fg-dark:#f5f5f7; --muted-dark:#a1a1a6; --line-dark:#1c1c1e;
+      --card-dark:rgba(255,255,255,0.06); --pill-dark:rgba(255,255,255,0.08); --glass-border-dark:rgba(255,255,255,0.12);
+      --bg-light:#f5f5f7; --fg-light:#000; --muted-light:#6b6b6f; --line-light:#d2d2d7;
+      --card-light:rgba(255,255,255,0.9); --pill-light:rgba(0,0,0,0.06); --glass-border-light:rgba(0,0,0,0.1);
+      --accent:#0a84ff; --accent-2:#34c759; --danger:#ff3b30;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%} html{scroll-behavior:smooth}
+    body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg-dark); color:var(--fg-dark);}
+    a{color:var(--accent);text-decoration:none}
+    .container{max-width:1080px;margin:0 auto;padding:0 24px}
+    .spacer-xl{height:64px} .spacer-l{height:40px} .spacer-m{height:24px}
+
+    .topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:center; height:52px; border-bottom:1px solid var(--line-dark); backdrop-filter:saturate(180%) blur(14px); background:rgba(0,0,0,.6); color:var(--fg-dark);}
+    .topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+    .logo{width:18px;height:18px;border-radius:6px; background: radial-gradient(circle at 30% 30%, #fff 0%, #bbb 20%, #222 55%), #111; box-shadow: 0 2px 8px rgba(0,0,0,.6) inset, 0 0 0 1px var(--glass-border-dark);}
+
+    .section{padding:72px 0}
+    .section.dark{background: radial-gradient(1200px 600px at 50% -10%, #0a0a0a 20%, #000 60%); color:var(--fg-dark)}
+    .section.light{background:var(--bg-light); color:var(--fg-light)}
+    .section.light .muted{color:var(--muted-light)} .section.dark .muted{color:var(--muted-dark)}
+
+    .hero{text-align:center}
+    .eyebrow{font-weight:600; letter-spacing:.02em; font-size:14px}
+    h1{margin:8px 0 10px; font-size:clamp(32px,6vw,64px); line-height:1.06; font-weight:700; letter-spacing:-.02em; background: linear-gradient(180deg, #fff, #cfcfd4 60%, #9c9ca3); -webkit-background-clip:text; background-clip:text; color:transparent;}
+    .sub{font-size:clamp(16px,2.4vw,20px)} .section.dark .sub{color:var(--muted-dark)}
+
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:14px}
+    .section.dark .pill{background:var(--pill-dark); border:1px solid var(--glass-border-dark); color:#d8d8dc}
+
+    .card{border-radius:20px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,.12); backdrop-filter: blur(10px) saturate(120%)}
+    .section.dark .card{border:1px solid var(--glass-border-dark); background:var(--card-dark)}
+    .grid{display:grid; grid-template-columns:1fr; gap:16px}
+
+    .divider{height:1px; margin:16px 0; background:linear-gradient(90deg, transparent, var(--line-dark), transparent)}
+
+    .progress{height:10px; border-radius:999px; overflow:hidden; min-width:220px; background:#0b0b0c; border:1px solid var(--line-dark)}
+    .bar{height:100%; width:0%; background:linear-gradient(90deg,#007aff,#0bd3d3); transition:width .35s ease}
+
+    .tag{font-size:12px; border-radius:999px; padding:4px 10px}
+    .section.dark .tag{color:#cfd0d4; background:var(--pill-dark); border:1px solid var(--glass-border-dark)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .q{padding:16px; border-radius:16px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border-dark)}
+    .q h3{margin:0 0 8px; font-size:18px; letter-spacing:-.01em}
+    .q small{color:var(--muted-dark)}
+    .scale{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+    .btn{cursor:pointer; border:none; border-radius:12px; padding:10px 12px; transition: transform .06s ease, filter .15s ease, border-color .15s ease; background:rgba(255,255,255,0.06); color:#e9e9ec; border:1px solid var(--glass-border-dark)}
+    .btn:hover{filter:brightness(1.05)} .btn:active{transform: translateY(1px)}
+    .btn[aria-pressed="true"]{color:#eafff0; background:linear-gradient(180deg, rgba(52,199,89,.25), rgba(0,0,0,.1)); border-color:rgba(52,199,89,.55); box-shadow:0 0 0 1px rgba(52,199,89,.35) inset;}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .cta,.ghost{cursor:pointer; border:none; border-radius:999px; padding:12px 18px; font-weight:600; transition: transform .06s ease, filter .2s ease;}
+    .cta{background:linear-gradient(180deg,#0a84ff,#0066cc); color:white; border:1px solid #0a84ff}
+    .ghost{background:transparent; color:#e5e5ea; border:1px solid var(--glass-border-dark); background:var(--pill-dark)}
+    .cta:hover,.ghost:hover{filter:brightness(1.05)} .cta:active,.ghost:active{transform:translateY(1px)}
+
+    .form{display:grid; grid-template-columns:1fr; gap:12px; margin-top:12px}
+    @media(min-width:980px){ .form{grid-template-columns:1fr 1fr 1fr} }
+    .field{display:flex; flex-direction:column; gap:6px}
+    .field label{font-size:14px; color:var(--muted-dark)}
+    .input{width:100%; border-radius:12px; padding:10px 12px; font-size:14px; border:1px solid var(--glass-border-dark); outline:none; background:rgba(255,255,255,.06); color:#f5f5f7}
+    .input:focus{box-shadow:0 0 0 2px rgba(10,132,255,.25); border-color:#0a84ff}
+    .help{font-size:12px; color:var(--muted-dark)}
+    .error .input{border-color: rgba(255,59,48,.8) !important; box-shadow: 0 0 0 2px rgba(255,59,48,.2);}
+    .error-msg{font-size:12px; color:var(--danger);}
+    footer.sticky{position:fixed; inset:auto 0 0 0; background:rgba(0,0,0,.85); color:var(--fg-dark); border-top:1px solid var(--line-dark); backdrop-filter: blur(10px);}
+    .foot{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .foot .note{color:var(--muted-dark); font-size:14px}
 
     /* ====== Transition PowerPoint-like (sortie) ====== */
     #transition-curtain{
@@ -26,8 +96,6 @@
       60%  { transform: translateX(0%)   scale(1.00); }
       100% { transform: translateX(0%)   scale(1.00); }
     }
-
-    /* Petite atténuation du contenu pendant la sortie */
     .page-fade{
       animation: page-dim 380ms ease-out forwards;
     }
@@ -35,8 +103,6 @@
       from{ opacity:1; filter:none; transform:none; }
       to  { opacity:.2; filter:blur(2px); transform:scale(.995); }
     }
-
-    /* Respecte l’accessibilité */
     @media (prefers-reduced-motion: reduce){
       .curtain-animate, .page-fade{ animation: none !important; }
       #transition-curtain{ display:none !important; }
@@ -47,22 +113,211 @@
   <!-- rideau de transition -->
   <div id="transition-curtain" aria-hidden="true"></div>
 
-  <!-- ====== le reste de ton HTML identique à la version précédente ====== -->
-  <!-- (topbar, sections, questions, footer...) -->
+  <div class="topbar"><div class="brand"><div class="logo" aria-hidden="true"></div> Diagnostic Industrie</div></div>
+
+  <section class="section dark">
+    <header class="hero container">
+      <div class="eyebrow muted">Évaluation express</div>
+      <h1>Diagnostic de maturité<br>numérique&nbsp;&amp;&nbsp;IA — Industrie</h1>
+      <p class="sub">Mesurez votre niveau (N1 → N4) et repartez avec des actions claires et priorisées.</p>
+      <div class="hero-cta"><span class="pill">⏱️ 5&nbsp;min</span><span class="pill">🧪 POC → Produit</span></div>
+    </header>
+  </section>
+
+  <section class="section light">
+    <main class="container">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap">
+          <div class="chips">
+            <span class="tag">Vision & Gouvernance</span>
+            <span class="tag">Données & IT</span>
+            <span class="tag">Production & Automatisation</span>
+            <span class="tag">Qualité & Vision</span>
+            <span class="tag">IA & Analytics</span>
+            <span class="tag">Organisation & Compétences</span>
+          </div>
+          <div class="progress"><div class="bar" id="progress"></div></div>
+        </div>
+
+        <!-- Champs d'identification -->
+        <div class="form" id="identity">
+          <div class="field" id="companyField">
+            <label for="company">Nom de l'entreprise <span aria-hidden="true" style="color:#888">*</span></label>
+            <input class="input" type="text" id="company" name="company" placeholder="Ex. Dupont Industries" autocomplete="organization" aria-required="true" aria-invalid="false">
+            <span class="error-msg" id="companyError"></span>
+          </div>
+          <div class="field" id="sectorField">
+            <label for="sector">Secteur d'activité</label>
+            <input class="input" type="text" id="sector" name="sector" placeholder="Ex. Aéronautique, Agroalimentaire, etc.">
+          </div>
+          <div class="field" id="emailField">
+            <label for="email">Adresse email</label>
+            <input class="input" type="email" id="email" name="email" placeholder="nom@entreprise.fr" autocomplete="email" aria-invalid="false">
+            <span class="help">Facultative. Si renseignée, elle doit être valide.</span>
+            <span class="error-msg" id="emailError"></span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <section>
+          <div id="questions" style="margin-top:6px;display:grid;gap:12px"></div>
+          <div class="spacer-m"></div>
+          <div class="actions">
+            <button class="cta" id="compute">Calculer mon niveau</button>
+            <button class="ghost" id="reset">Réinitialiser</button>
+            <button class="ghost" id="quickDone">Voir un exemple rempli</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <div class="card" style="text-align:center">
+        <h2 style="margin:0 0 10px; font-size:clamp(24px,4vw,36px); letter-spacing:-.02em;">Passez de l’intuition au pilotage</h2>
+        <p class="muted" style="margin:0 0 16px">Identifiez vos priorités et planifiez vos prochains déploiements digitaux.</p>
+        <div class="actions" style="justify-content:center">
+          <button class="ghost" id="print">Imprimer / PDF</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sticky">
+    <div class="foot">
+      <div class="note">💡 0 = pas en place → 3 = complètement. Niveaux : N1 (Analogique), N2 (Automatisé), N3 (Connecté), N4 (Smart Factory).</div>
+      <div class="actions"><button class="cta" id="quickDone_footer">Exemple rempli</button></div>
+    </div>
+  </footer>
 
   <script>
-    /* ==== (tes scripts existants inchangés jusqu’à computeAndGo) ==== */
+    /* ==== Helpers scroll/validation ==== */
+    function scrollToTop(force=false){
+      const el = document.scrollingElement || document.documentElement || document.body;
+      try{ el.scrollTo({top:0, behavior: force ? 'auto' : 'smooth'}); }catch(_){ el.scrollTop = 0; }
+      document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+    }
+    function scrollToField(el){
+      if(!el) return;
+      try{ el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){ el.focus(); }
+      el.focus({preventScroll:true});
+    }
 
-    // Ajoute une sortie “diapo” avant la navigation
+    const companyEl = document.getElementById('company');
+    const emailEl   = document.getElementById('email');
+    const companyField = document.getElementById('companyField');
+    const emailField   = document.getElementById('emailField');
+    const companyError = document.getElementById('companyError');
+    const emailError   = document.getElementById('emailError');
+
+    function isValidEmail(v){ if(!v) return true; const re=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i; return re.test(v.trim()); }
+    function clearErrors(){ [companyField,emailField].forEach(f=>f.classList.remove('error')); companyEl.setAttribute('aria-invalid','false'); emailEl.setAttribute('aria-invalid','false'); companyError.textContent=''; emailError.textContent=''; }
+    function validateIdentity(){
+      clearErrors(); let ok=true;
+      if(!companyEl.value.trim()){ ok=false; companyField.classList.add('error'); companyEl.setAttribute('aria-invalid','true'); companyError.textContent="Le nom de l'entreprise est requis."; }
+      if(!isValidEmail(emailEl.value)){ ok=false; emailField.classList.add('error'); emailEl.setAttribute('aria-invalid','true'); emailError.textContent="Format d'email invalide (ex. nom@entreprise.fr)."; }
+      if(!ok){ const firstError = document.querySelector('.error .input'); scrollToField(firstError); }
+      return ok;
+    }
+    [companyEl,emailEl].forEach(inp=>{
+      inp.addEventListener('input', ()=>{
+        if(inp===companyEl && companyEl.value.trim()){ companyField.classList.remove('error'); companyEl.setAttribute('aria-invalid','false'); companyError.textContent=''; }
+        if(inp===emailEl && isValidEmail(emailEl.value)){ emailField.classList.remove('error'); emailEl.setAttribute('aria-invalid','false'); emailError.textContent=''; }
+      });
+    });
+
+    /* ==== Modèle ==== */
+    const CATEGORIES = [
+      { key:'gov', label:'Vision & Gouvernance', weight:1 },
+      { key:'it', label:'Données & IT', weight:1 },
+      { key:'prod', label:'Production & Automatisation', weight:1 },
+      { key:'qual', label:'Qualité & Vision', weight:1 },
+      { key:'ml', label:'IA & Analytics', weight:1 },
+      { key:'org', label:'Organisation & Compétences', weight:1 }
+    ];
+    const QUESTIONS = [
+      { cat:'gov', text:"Une feuille de route ‘industrie du futur’ est formalisée (objectifs, KPI, budget)." },
+      { cat:'gov', text:"La direction sponsorise activement les projets digitaux/IA." },
+      { cat:'it', text:"Nous disposons d'un réseau stable (LAN industriel) et d'une politique de sauvegarde." },
+      { cat:'it', text:"Les données de production sont historisées et consultables (MES/SCADA/DB)." },
+      { cat:'prod', text:"Les postes de production sont instrumentés (capteurs, PLC) et interfaçables (API/OPC/MQTT)." },
+      { cat:'prod', text:"Les changements de série (changeover) sont standardisés et documentés." },
+      { cat:'qual', text:"Un contrôle qualité automatisé (caméra ou capteurs) est déjà en place sur la ligne." },
+      { cat:'qual', text:"Des indicateurs taux NOK / scrap / retouches sont suivis et partagés." },
+      { cat:'ml', text:"Nous avons des cas d’usage IA (vision, détection défaut, optimisation) en production ou pilote." },
+      { cat:'ml', text:"Un processus d'amélioration continue des modèles (ré-entraînement) existe." },
+      { cat:'org', text:"Les opérateurs sont formés aux outils digitaux, avec procédures simples (SOP)." },
+      { cat:'org', text:"Un référent interne (qualité/automatisme/IT) pilote les projets digitaux." }
+    ];
+    const SCALE = [
+      { v:0, label:'0 — Pas du tout' },
+      { v:1, label:'1 — En réflexion' },
+      { v:2, label:'2 — Partiellement' },
+      { v:3, label:'3 — Complètement' }
+    ];
+
+    const qEl = document.getElementById('questions');
+    const answers = Array(QUESTIONS.length).fill(null);
+
+    // Render questions
+    QUESTIONS.forEach((q, idx)=>{
+      const el=document.createElement('div'); el.className='q';
+      el.innerHTML=`
+        <h3>Q${idx+1}. ${q.text}</h3>
+        <div class="scale" role="group" aria-label="Échelle de maturité">
+          ${SCALE.map(s=>`<button class='btn' data-q='${idx}' data-v='${s.v}' aria-pressed='false' title='${s.label}'>${s.v}</button>`).join('')}
+        </div>
+        <small>${SCALE.map(s=>s.label).join(' · ')}</small>`;
+      qEl.appendChild(el);
+    });
+
+    qEl.addEventListener('click', (e)=>{
+      const b=e.target.closest('button.btn'); if(!b) return;
+      const id=+b.dataset.q, val=+b.dataset.v; answers[id]=val;
+      b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true'); updateProgress();
+    });
+    function updateProgress(){ const done=answers.filter(v=>v!==null).length; const pct=Math.round((done/answers.length)*100); document.getElementById('progress').style.width=pct+'%'; }
+
+    /* ==== Recommandations ==== */
+    function buildRecoPredicta(global, lowCats) {
+      const company=(document.getElementById('company')?.value||'').trim();
+      const sector=(document.getElementById('sector')?.value||'').trim();
+      const who = company ? ` pour ${company}` : '';
+      const inSector = sector ? ` (${sector})` : '';
+      const reco=[];
+      if(global<50){
+        reco.push(`Atelier de cadrage 2h${who}${inSector} : objectifs, périmètre pilotes et ROI cible.`,
+                  `POC rapide sur 1 ligne (≤ 6 semaines) : mesure d’impact et plan d’industrialisation.`);
+      } else {
+        reco.push(`Roadmap 90 jours${who} : déploiement multi-lignes, standardisation et gouvernance.`,
+                  `Kit de déploiement (Edge + monitoring) : réplication scalable site → site.`);
+      }
+      lowCats.forEach(c=>{
+        if(c.key==='it'){reco.push(`Audit éclair IT/OT : réseau usine, sauvegardes, sécurité ; socle données (DB/MQTT/OPC-UA).`,
+                                   `Mise en place du bus de données & historique production (connecteurs prêts à l’emploi).`);}
+        else if(c.key==='qual'){reco.push(`Poste de vision piloté : caméra, éclairage, annotation et métriques (NOK/scrap/FP/FN).`,
+                                          `Table de validation “golden set” et suivi des performances en routine.`);}
+        else if(c.key==='ml'){reco.push(`Pipeline MLOps${inSector} : entraînement, versionning modèles/datasets, ré-apprentissage continu.`,
+                                        `Mise en prod détection/optimisation avec supervision et alertes.`);}
+        else if(c.key==='prod'){reco.push(`Standardisation changeovers & exposition signaux (API/OPC/MQTT) pour OEE temps-réel.`,
+                                          `Tableaux de bord opérateurs (poste/ligne) et alertes écart de procédé.`);}
+        else if(c.key==='gov'){reco.push(`PMO data/IA${who} : sponsoring, KPI (scrap, TRS), comités mensuels, gestion des risques.`,
+                                         `Modèle de valeur : cas d’usage priorisés (effet EBITDA, capex/opex, payback).`);}
+        else if(c.key==='org'){reco.push(`Acculturation & formation ciblée : opérateurs, qualité, maintenance (SOP et runbooks).`,
+                                         `Binôme champion (qualité + automatisme) et routines d’amélioration continue.`);}
+      });
+      return Array.from(new Set(reco));
+    }
+
+    /* ==== Transition + Calcul + redirection vers results ==== */
     function goWithCurtain(targetHref){
       const curtain = document.getElementById('transition-curtain');
-      // atténue le contenu
       document.body.classList.add('page-fade');
-      // lance le rideau
       curtain.classList.add('curtain-animate');
-      // quand l’anim est finie, on change de page
       curtain.addEventListener('animationend', ()=>{ window.location.href = targetHref; }, { once:true });
-      // sécurité : si l’évènement rate, on navigue quand même après ~650ms
       setTimeout(()=>{ if(location.href.indexOf(targetHref)===-1){ window.location.href = targetHref; } }, 650);
     }
 
@@ -87,30 +342,7 @@
                  : 'N1 — Analogique';
 
       const low = [...catScores].sort((a,b)=>a.pct-b.pct).slice(0,2);
-
-      function buildRecoPredicta(global, lowCats){
-        const company=(document.getElementById('company')?.value||'').trim();
-        const sector=(document.getElementById('sector')?.value||'').trim();
-        const who = company ? ` pour ${company}` : '';
-        const inSector = sector ? ` (${sector})` : '';
-        const reco=[];
-        if(global<50){
-          reco.push(`Atelier de cadrage 2h${who}${inSector} : objectifs, périmètre pilotes et ROI cible.`,
-                    `POC rapide sur 1 ligne (≤ 6 semaines) : mesure d’impact et plan d’industrialisation.`);
-        } else {
-          reco.push(`Roadmap 90 jours${who} : déploiement multi-lignes, standardisation et gouvernance.`,
-                    `Kit de déploiement (Edge + monitoring) : réplication scalable site → site.`);
-        }
-        lowCats.forEach(c=>{
-          if(c.key==='it'){reco.push(`Audit éclair IT/OT : réseau usine, sauvegardes, sécurité ; socle données.`);}
-          else if(c.key==='qual'){reco.push(`Poste de vision : caméra/éclairage/annotation + suivi NOK/scrap.`);}
-          else if(c.key==='ml'){reco.push(`Pipeline MLOps${inSector} : entraînement, versionning, ré-apprentissage.`);}
-          else if(c.key==='prod'){reco.push(`Standardisation changeovers & exposition des signaux (API/OPC/MQTT).`);}
-          else if(c.key==='gov'){reco.push(`PMO data/IA${who} : sponsoring, KPI (scrap, TRS), comités mensuels.`);}
-          else if(c.key==='org'){reco.push(`Acculturation & formation ciblée (SOP, runbooks), binôme champion.`);}
-        });
-        return Array.from(new Set(reco));
-      }
+      const reco = buildRecoPredicta(global, low);
 
       const payload = {
         ts: new Date().toISOString(),
@@ -120,15 +352,37 @@
           email:   document.getElementById('email')?.value?.trim() || ''
         },
         answers,
-        computed: { global, level, catScores, reco: buildRecoPredicta(global, low) }
+        computed: { global, level, catScores, reco }
       };
       sessionStorage.setItem('diagnostic_results', JSON.stringify(payload));
 
-      // >>> remplace l’ancienne redirection par la transition <<<
+      // Transition façon “diapo”
       goWithCurtain('results.html');
     }
 
-    // (listeners inchangés)
+    function quickFill(){
+      const pattern=[2,1, 2,1, 2,2, 1,2, 1,1, 2,2];
+      pattern.forEach((v,i)=>{
+        answers[i]=v;
+        const group=qEl.children[i].querySelector('.scale');
+        group.querySelectorAll('button').forEach(btn=>btn.setAttribute('aria-pressed', btn.dataset.v==v?'true':'false'));
+      });
+      document.getElementById('company').value="Exemple SA";
+      document.getElementById('sector').value="Agroalimentaire";
+      updateProgress();
+      computeAndGo();
+    }
+
+    function resetAll(){
+      answers.fill(null);
+      qEl.querySelectorAll('.scale').forEach(group=>{
+        group.querySelectorAll('button').forEach(btn=>btn.setAttribute('aria-pressed','false'));
+      });
+      document.getElementById('progress').style.width='0%';
+      ['company','sector','email'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+      clearErrors(); scrollToTop(true);
+    }
+
     document.getElementById('compute').addEventListener('click', computeAndGo);
     document.getElementById('reset').addEventListener('click', resetAll);
     document.getElementById('quickDone').addEventListener('click', quickFill);
