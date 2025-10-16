@@ -218,7 +218,7 @@
       filter: 'all',
       query: ''
     };
-    const € = n => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    const euro = n => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
     const saveCart = () => localStorage.setItem('cart', JSON.stringify(state.cart));
 
     // --- Rendu produits ---
@@ -240,7 +240,7 @@
           <div class="card-content">
             <div class="title">${p.name}</div>
             <div class="muted">${p.category}</div>
-            <div class="price">${€(p.price)}</div>
+            <div class="price">${euro(p.price)}</div>
           </div>
           <div class="card-actions">
             <div class="qty">
@@ -293,13 +293,13 @@
     function totals(){
       const sub = state.cart.reduce((s,i)=> s + i.qty * i.price, 0);
       const vat = sub * .2; const total = sub + vat;
-      subtotalEl.textContent = €(sub);
-      vatEl.textContent = €(vat);
-      totalEl.textContent = €(total);
+      subtotalEl.textContent = euro(sub);
+      vatEl.textContent = euro(vat);
+      totalEl.textContent = euro(total);
       cartCount.textContent = state.cart.reduce((s,i)=> s + i.qty, 0);
       // résumé checkout
       document.getElementById('summary').innerHTML = state.cart.length ?
-        state.cart.map(i => `<div style="display:flex; justify-content:space-between; gap:10px;"><span>${i.name} × ${i.qty}</span><strong>${€(i.qty*i.price)}</strong></div>`).join('') +
+        state.cart.map(i => `<div style="display:flex; justify-content:space-between; gap:10px;"><span>${i.name} × ${i.qty}</span><strong>${euro(i.qty*i.price)}</strong></div>`).join('') +
         `<hr style="border:none;border-top:1px dashed var(--border);margin:10px 0;"/>` +
         `<div style="display:flex; justify-content:space-between;"><span>Total</span><strong>${totalEl.textContent}</strong></div>`
         : '<span class="muted">Votre panier est vide.</span>';
@@ -308,14 +308,16 @@
     function renderCart(){
       cartItems.innerHTML = state.cart.length ? state.cart.map(i => `
         <div class="cart-row">
-          <img src="${i.img}" alt="${i.name}" style="width:64px; height:64px; object-fit:cover; border-radius:10px;"/>
+          <div>
+            <img src="${i.img}" alt="${i.name}" style="width:64px; height:64px; object-fit:cover; border-radius:10px;"/>
+          </div>
           <div>
             <div style="font-weight:600;">${i.name}</div>
-            <div class="muted">${€(i.price)} / u.</div>
+            <div class="muted">${euro(i.price)} / u.</div>
             <label class="muted" style="display:block; margin-top:6px;">Qté : <input type="number" min="1" value="${i.qty}" style="width:70px;" oninput="setCartQty('${i.id}', this.value)" /></label>
           </div>
           <div style="display:grid; gap:6px; justify-items:end;">
-            <strong>${€(i.qty * i.price)}</strong>
+            <strong>${euro(i.qty * i.price)}</strong>
             <button class="btn" onclick="removeFromCart('${i.id}')">Supprimer</button>
           </div>
         </div>`).join('') : '<p class="muted">Votre panier est vide.</p>';
