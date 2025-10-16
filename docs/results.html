@@ -5,52 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Résultats — Diagnostic Industrie</title>
   <style>
-    :root{
-      --bg-dark:#000; --fg-dark:#f5f5f7; --muted-dark:#a1a1a6; --line-dark:#1c1c1e;
-      --card-dark:rgba(255,255,255,0.06); --pill-dark:rgba(255,255,255,0.08); --glass-border-dark:rgba(255,255,255,0.12);
-      --accent:#0a84ff; --danger:#ff3b30;
+    /* ... (tes styles existants) ... */
+
+    /* ====== Apparition à l’arrivée ====== */
+    body.is-hidden *{ visibility:hidden; } /* évite le flash */
+    body.ready .reveal{
+      animation: result-reveal 520ms cubic-bezier(.2,.7,.2,1) both;
     }
-    *{box-sizing:border-box}
-    body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg-dark); color:var(--fg-dark);}
-    .topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:center; height:52px; border-bottom:1px solid var(--line-dark); backdrop-filter:saturate(180%) blur(14px); background:rgba(0,0,0,.6); color:var(--fg-dark);}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:600}
-    .logo{width:18px;height:18px;border-radius:6px; background: radial-gradient(circle at 30% 30%, #fff 0%, #bbb 20%, #222 55%), #111; box-shadow: 0 2px 8px rgba(0,0,0,.6) inset, 0 0 0 1px var(--glass-border-dark);}
+    @keyframes result-reveal{
+      from{ opacity:0; filter:blur(8px); transform: translateY(12px) scale(.992); }
+      60%{ opacity:1; filter:blur(0); transform: translateY(0) scale(1); }
+      to  { opacity:1; }
+    }
 
-    .section{padding:32px 0}
-    .container{max-width:1080px;margin:0 auto;padding:0 24px}
-    .card{border-radius:20px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,.12); backdrop-filter: blur(10px) saturate(120%); border:1px solid var(--glass-border-dark); background:var(--card-dark)}
-    .muted{color:var(--muted-dark)}
+    /* petit “contre-rideau” */
+    #arrival-wipe{
+      position:fixed; inset:0; pointer-events:none; opacity:1;
+      background:
+        radial-gradient(1200px 600px at 85% 110%, rgba(255,255,255,.08), transparent 60%) ,
+        linear-gradient(315deg, rgba(10,132,255,.65), rgba(0,0,0,.0) 55%) ,
+        linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.88));
+      transform: translateX(-100%);
+      z-index:9999;
+    }
+    .arrival-animate{
+      animation: arrival-wipe 520ms cubic-bezier(.2,.7,.2,1) forwards;
+    }
+    @keyframes arrival-wipe{
+      0%   { transform: translateX(-100%); }
+      40%  { transform: translateX(0%); }
+      100% { transform: translateX(-110%); opacity:0; }
+    }
 
-    .score-badge{display:inline-flex; gap:10px; align-items:center; padding:10px 14px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border-dark)}
-    .score-badge strong{font-size:24px; letter-spacing:-.02em}
-    .lvl{font-weight:700; color:#2b9d42}
-
-    .bars{display:grid;gap:10px;margin-top:14px}
-    .barrow{display:grid;grid-template-columns:200px 1fr; align-items:center;gap:10px}
-    .barx{height:10px;border-radius:999px;overflow:hidden; background:#0b0b0c; border:1px solid var(--line-dark)}
-    .fill{height:100%;background:linear-gradient(90deg,#0bd3d3,#0a84ff);width:0%}
-
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    .cta,.ghost{cursor:pointer; border:none; border-radius:999px; padding:12px 18px; font-weight:600}
-    .cta{background:linear-gradient(180deg,#0a84ff,#0066cc); color:white; border:1px solid #0a84ff}
-    .ghost{background:transparent; color:#e5e5ea; border:1px solid var(--glass-border-dark); background:var(--pill-dark)}
-
-    .list{margin:0 0 8px 18px;line-height:1.6}
-    .hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:14px; background:var(--pill-dark); border:1px solid var(--glass-border-dark); color:#d8d8dc}
-    .kv{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px}
-    .kv .pill strong{font-weight:600}
-    a{color:var(--accent); text-decoration:none}
+    @media (prefers-reduced-motion: reduce){
+      body.ready .reveal{ animation:none !important; }
+      #arrival-wipe{ display:none !important; }
+    }
   </style>
 </head>
-<body>
-  <div class="topbar">
+<body class="is-hidden">
+  <!-- contre-rideau pour l’arrivée -->
+  <div id="arrival-wipe" aria-hidden="true"></div>
+
+  <div class="topbar reveal">
     <div class="brand"><div class="logo" aria-hidden="true"></div> Résultats du diagnostic</div>
   </div>
 
-  <section class="section">
+  <section class="section reveal">
     <div class="container">
-      <div class="card">
+      <div class="card reveal">
         <div class="hdr">
           <div class="score-badge">
             <span>Score global</span> <strong id="score">—</strong>
@@ -90,17 +93,12 @@
     function load(){
       const raw=sessionStorage.getItem('diagnostic_results');
       if(!raw){
-        // Fallback si la page est ouverte sans calcul préalable
         document.getElementById('score').textContent='—';
         document.getElementById('level').textContent='N/A';
         document.getElementById('catbars').innerHTML='<div class="muted">Aucune donnée trouvée. <a href="index.html">Lancer le diagnostic</a>.</div>';
         return null;
       }
-      try{
-        return JSON.parse(raw);
-      }catch(_){
-        return null;
-      }
+      try{ return JSON.parse(raw); }catch(_){ return null; }
     }
     function render(data){
       if(!data) return;
@@ -114,13 +112,14 @@
 
       const wrap=document.getElementById('catbars'); wrap.innerHTML='';
       (computed.catScores||[]).forEach(c=>{
-        const row=document.createElement('div'); row.className='barrow';
+        const row=document.createElement('div'); row.className='barrow reveal';
+        row.style.animationDelay = (80 * (wrap.children.length+1)) + 'ms';
         row.innerHTML=`<div>${c.label}</div><div class='barx'><div class='fill' style='width:${c.pct}%'></div></div>`;
         wrap.appendChild(row);
       });
 
       const list=document.getElementById('reco'); list.innerHTML='';
-      (computed.reco||[]).forEach(r=>{ const li=document.createElement('li'); li.textContent=r; list.appendChild(li); });
+      (computed.reco||[]).forEach((r,i)=>{ const li=document.createElement('li'); li.className='reveal'; li.style.animationDelay=(120*i)+'ms'; li.textContent=r; list.appendChild(li); });
     }
 
     function exportJSON(){
@@ -130,7 +129,6 @@
       const url=URL.createObjectURL(blob); const a=document.createElement('a');
       a.href=url; a.download='diagnostic_maturite.json'; a.click(); URL.revokeObjectURL(url);
     }
-
     function clearData(){
       sessionStorage.removeItem('diagnostic_results');
       location.reload();
@@ -140,8 +138,16 @@
     document.getElementById('print').addEventListener('click', ()=>window.print());
     document.getElementById('clear').addEventListener('click', clearData);
 
-    // Init
-    render(load());
+    // Démarrage : on charge, on rend, puis on joue l’anim d’arrivée
+    window.addEventListener('DOMContentLoaded', ()=>{
+      render(load());
+      // montre la page et lance le "contre-rideau"
+      document.body.classList.remove('is-hidden');
+      document.body.classList.add('ready');
+      const wipe = document.getElementById('arrival-wipe');
+      // Lancer une fois que le DOM est prêt pour éviter un flash
+      requestAnimationFrame(()=>{ wipe.classList.add('arrival-animate'); });
+    });
   </script>
 </body>
 </html>
